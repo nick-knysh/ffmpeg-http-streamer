@@ -20,6 +20,7 @@ ruff = "^0.12.9"
 
 [project.scripts]
 ffmpeg-http-streamer = "ffmpeg_http_streamer.main:main"
+ffmpeg-http-browser = "ffmpeg_http_streamer.browser_main:main"
 
 [tool.ruff]
 lint.extend-select = [

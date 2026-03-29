@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FFmpeg HTTP browser</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #121212; color: #e0e0e0; max-width: 900px; margin: 1rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.25rem; }
+    a { color: #7cb7ff; cursor: pointer; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    #tree { border: 1px solid #333; padding: 0.75rem; min-height: 100px; border-radius: 6px; }
+    ul { list-style: none; padding-left: 0; margin: 0.25rem 0; }
+    li { margin: 0.2rem 0; }
+    video { width: 100%; max-height: 60vh; background: #000; margin-top: 1rem; border-radius: 6px; }
+    .err { color: #f66; }
+    #crumb { font-size: 0.9rem; color: #888; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <h1>Video library</h1>
+  <p id="crumb"></p>
+  <p><a id="up" style="display:none">Up</a></p>
+  <div id="tree"></div>
+  <p id="status" class="err"></p>
+  <video id="v" controls playsinline></video>
+  <script>
+  let curPath = "";
+  const tree = document.getElementById("tree");
+  const crumb = document.getElementById("crumb");
+  const status = document.getElementById("status");
+  const video = document.getElementById("v");
+  const up = document.getElementById("up");
+  let hlsObj = null;
+  let activeStreamId = null;
+
+  function setCrumb() {
+    crumb.textContent = curPath ? curPath : "(root)";
+    up.style.display = curPath ? "inline" : "none";
+  }
+
+  up.onclick = () => {
+    const i = curPath.lastIndexOf("/");
+    curPath = i <= 0 ? "" : curPath.slice(0, i);
+    setCrumb();
+    load();
+  };
+
+  async function load() {
+    status.textContent = "";
+    const r = await fetch("/api/browse?path=" + encodeURIComponent(curPath));
+    const d = await r.json();
+    if (d.error) { status.textContent = d.error; tree.innerHTML = ""; return; }
+    tree.innerHTML = "";
+    const ul = document.createElement("ul");
+    for (const dir of d.directories) {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.textContent = dir + "/";
+      a.onclick = () => { curPath = curPath ? curPath + "/" + dir : dir; setCrumb(); load(); };
+      li.appendChild(a); ul.appendChild(li);
+    }
+    for (const v of d.videos) {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.textContent = v;
+      a.onclick = () => play(v);
+      li.appendChild(a); ul.appendChild(li);
+    }
+    tree.appendChild(ul);
+  }
+
+  async function play(relPath) {
+    status.textContent = "Starting…";
+    if (hlsObj) { hlsObj.destroy(); hlsObj = null; }
+    if (activeStreamId) {
+      fetch("/api/streams/" + activeStreamId, { method: "DELETE" }).catch(() => {});
+      activeStreamId = null;
+    }
+    video.removeAttribute("src");
+    video.load();
+    const r = await fetch("/api/play", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: relPath }),
+    });
+    const d = await r.json();
+    if (!r.ok) { status.textContent = d.error || "play failed"; return; }
+    activeStreamId = d.streamId;
+    const dur = d.durationSec != null ? d.durationSec.toFixed(1) + "s" : "?";
+    status.textContent = "Playing (" + dur + ") — stream " + d.streamId.slice(0, 8) + "…";
+    const url = d.playlistUrl;
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = url;
+    } else if (window.Hls && Hls.isSupported()) {
+      hlsObj = new Hls();
+      hlsObj.loadSource(url);
+      hlsObj.attachMedia(video);
+    } else {
+      status.textContent = "HLS not supported in this browser";
+    }
+  }
+
+  setCrumb();
+  load();
+  </script>
+</body>
+</html>

@@ -71,3 +71,15 @@ def is_port_free(private_ip, port):
             return False
         else:
             return True
+
+
+
+def is_port_free_any_host(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(1)
+        try:
+            s.bind(("", port))
+        except OSError:
+            return False
+        else:
+            return True

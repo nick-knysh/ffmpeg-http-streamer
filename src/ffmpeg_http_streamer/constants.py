@@ -24,3 +24,11 @@ PROCESS_STARTUP_TIMEOUT_S = 20
 
 
 EADDRINUSE = errno.EADDRINUSE
+
+# Bumped when browser cache FFmpeg args change (invalidates cache dirs).
+CACHE_PROFILE_VERSION = "1"
+
+DEFAULT_STREAM_PORT_MIN = 49200
+DEFAULT_STREAM_PORT_MAX = 65535
+
+READY_MARKER_NAME = ".ready"
