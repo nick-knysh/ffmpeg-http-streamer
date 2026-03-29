@@ -94,14 +94,14 @@ Stream servers respond with **`Access-Control-Allow-Origin: *`** on media files 
 
 ```text
 ffmpeg-http-browser -p <web-port> --library <abs-dir> \
-  [-d <cache-dir>] [-t] \
+  [-d <cache-dir>] [--no-transcode] \
   [--stream-port-min N] [--stream-port-max N] [--max-streams N]
 ```
 
 - **`-p / --web-port`**: Required; must lie in `49152–65535` (same range as the original tool).
 - **`--library`**: Root directory to browse; entries are constrained under this path (traversal rejected).
 - **`-d / --cache-dir`**: Defaults under the user home cache path; created if needed.
-- **`-t / --transcode`**: Same semantics as the main streamer when remux is not enough (H.264/AAC).
+- **Transcoding (default on)**: By default the browser pipeline uses the same **H.264 / AAC–oriented** logic as `ffmpeg-http-streamer --transcode`, so **Chrome/Firefox/Safari** can decode video in the page (VLC accepts many more codecs via stream copy). Use **`--no-transcode`** only for remux/copy when your files are already browser-safe (typically **H.264 + AAC**); otherwise you may get **audio-only** in the browser while VLC still shows video.
 - **Stream range**: First free port in `[min, max]` excluding the web port is chosen per play.
 
 ---

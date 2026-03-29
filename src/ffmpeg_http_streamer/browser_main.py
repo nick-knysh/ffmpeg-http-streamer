@@ -38,10 +38,13 @@ def parse_args():
         help="Directory for HLS cache (created if missing).",
     )
     parser.add_argument(
-        "-t",
-        "--transcode",
+        "--no-transcode",
         action="store_true",
-        help="Transcode to H.264/AAC when needed (like ffmpeg-http-streamer).",
+        help=(
+            "Remux/copy only (faster cache). Use only for files that are already "
+            "browser-safe (typically H.264 + AAC); otherwise the in-page player may "
+            "play audio only while VLC still works."
+        ),
     )
     parser.add_argument(
         "--stream-port-min",
@@ -98,10 +101,11 @@ def main():
         print("Error: stream-port-min must be <= stream-port-max.", file=sys.stderr)
         sys.exit(1)
 
+    transcode = not args.no_transcode
     app = BrowserApp(
         Path(library),
         Path(cache_dir),
-        args.transcode,
+        transcode,
         args.web_port,
         args.stream_port_min,
         args.stream_port_max,
