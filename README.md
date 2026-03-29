@@ -19,6 +19,10 @@ It's perfect for watching your videos on other devices within the same network (
 - 🔍 Automatic network interface detection (private IP)
 - ⚡ Real-time streaming with FFmpeg
 
+### Browser library UI (optional)
+
+Use **`ffmpeg-http-browser`** to browse a folder of videos in the browser, play HLS with **hls.js** (or native Safari), progressive cache, and separate stream ports. Design and behavior are documented in [docs/ffmpeg-http-browser.md](docs/ffmpeg-http-browser.md).
+
 ## Installation without using Docker (macOS - Windows)
 
 Prerequisites:
