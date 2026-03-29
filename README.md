@@ -21,7 +21,7 @@ It's perfect for watching your videos on other devices within the same network (
 
 ### Browser library UI (optional)
 
-Use **`ffmpeg-http-browser`** to browse a folder of videos in the browser, play HLS with **hls.js** (or native Safari), progressive cache, and separate stream ports. It **transcodes by default** so in-page video works in common browsers (VLC accepts more codecs via copy). Use **`--no-transcode`** only for remux when files are already H.264/AAC. Details: [docs/ffmpeg-http-browser.md](docs/ffmpeg-http-browser.md).
+Use **`ffmpeg-http-browser`** to browse a folder of videos in the browser, play HLS with **hls.js** (or native Safari), progressive cache, and separate stream ports. Design and behavior are documented in [docs/ffmpeg-http-browser.md](docs/ffmpeg-http-browser.md).
 
 ## Installation without using Docker (macOS - Windows)
 

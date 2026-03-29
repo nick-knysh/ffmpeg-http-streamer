@@ -95,12 +95,6 @@
       video.src = url;
     } else if (window.Hls && Hls.isSupported()) {
       hlsObj = new Hls();
-      hlsObj.on(Hls.Events.ERROR, function (_e, data) {
-        if (data.fatal) {
-          status.textContent = "Playback error (" + (data.type || "?") + "): " + (data.details || "") +
-            " — if you used --no-transcode, try without it (browser needs H.264/AAC).";
-        }
-      });
       hlsObj.loadSource(url);
       hlsObj.attachMedia(video);
     } else {
